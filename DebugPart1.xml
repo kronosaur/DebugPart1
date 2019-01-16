@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+
+<!DOCTYPE TranscendenceExtension
+	[
+	<!-- Imported from Core -->
+
+	<!ENTITY msBenedictAndFiona			"0x00200009">
+	<!ENTITY msFionaInStKats			"0x00200012">
+	<!ENTITY msFindHandOfSolace			"0x00200013">
+
+	<!-- DEBUG PART I EXTENSION -->
+
+	<!ENTITY unidExtension				"0xA0140000">
+	
+	<!ENTITY unidWandOfWishing			"0xA0140001">
+	<!ENTITY unidWoWScreen				"0xA0140002">
+	<!ENTITY unidCoverImage				"0xA0140003">
+	]>
+
+<TranscendenceExtension UNID="&unidExtension;" 
+		name=			"Debug Part I"
+		release=		"1"
+		version=		"1.0.1"
+		apiVersion=		"43"
+		extends=		"0x00100000"
+		debugOnly=		"true"
+		coverImageID=	"&unidCoverImage;"
+		>
+
+	<Library unid="&unidRPGLibrary;"/>
+	<Library unid="&unidHumanSpaceLibrary;"/>
+
+	<Module filename="WandOfWishing.xml"/>
+
+	<Image UNID="&unidCoverImage;"	bitmap="Resources\DebugPart1Cover.jpg" loadOnUse="true" />
+	
+</TranscendenceExtension>

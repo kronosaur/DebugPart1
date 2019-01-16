@@ -1,0 +1,787 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TranscendenceModule>
+
+	<ItemType UNID="&unidWandOfWishing;"
+			name=				"wand(s) of wishing"
+			level=				"10"
+			value=				"100"
+			mass=				"0"
+			frequency=			"notrandom"
+			attributes=			"Info"
+
+			useScreen=			"&unidWoWScreen;"
+
+			description=		"Ask for 'help' to receive a list of wishes"
+			>
+
+		<Image imageID="&rsItems1;" imageX="192" imageY="96" imageWidth="96" imageHeight="96"/>
+	
+		<Events>
+			<OnGlobalUniverseCreated>
+				(dbgWand)
+			</OnGlobalUniverseCreated>
+		</Events>
+
+		<StaticData>
+			<Data id="cdmShard.connect">
+				{
+					restrictions: 'incompatible
+					}
+			</Data>
+		</StaticData>
+
+		<Language>
+			<String id="cdmShard.descIncompatible">
+				
+				"%ItemNamePlural% are no use to me."
+
+			</String>
+			<String id="cdmShard.descConnect">
+
+				"I can assimilate %itemName%."
+
+			</String>
+			<String id="cdmShard.descSuccess">
+
+				"Wonderful!"
+
+			</String>
+		</Language>
+	</ItemType>
+
+	<Globals>
+		(block Nil
+			(setq dbgWand (lambda ()
+				(objAddItem gPlayerShip (itmCreate &unidWandOfWishing; 1))
+				))
+			)
+	</Globals>
+
+	<DockScreen UNID="&unidWoWScreen;"
+			name=				"Ship's Interior"
+			>
+
+		<Panes>
+			<Default
+					desc=			"What do you wish for?"
+					showTextInput=	"true"
+					>
+
+				<Actions>
+					<Action name="Wish" key="W" default="1">
+					(block (theWish theParam delimiter paneToShow)
+						(setq theWish (scrGetInputText gScreen))
+						(setq delimiter (find theWish " "))
+						(if delimiter
+							(block Nil
+								(setq theParam (subset theWish (add delimiter 1)))
+								(setq theWish (subset theWish 0 delimiter))
+								)
+							)
+
+						(setq paneToShow "Granted")
+
+						(switch
+							(= theWish 'all)
+								(switch
+									(= theParam 'items)
+										(block Nil
+											(itmEnumTypes "* -unknown;" theItem
+												(objAddItem gPlayerShip theItem)
+												)
+												
+											(setq gResult "Created all items")
+											)
+											
+									(setq gResult "Unable to comply")
+									)
+									
+							(eq theWish 'arenaGladiator)
+								(block (score)
+									(if theParam
+										(setq score theParam)
+										(setq score 300)
+										)
+									(typSetGlobalData &stBattleArena; "arenaRank" 'gladiator)
+
+									(typSetGlobalData &stBattleArena; "arenaRep" score)
+									(typSetGlobalData &stBattleArena; "arenaSkill" score)
+
+									(typSetGlobalData &stBattleArena; "katamiStatus" 'instructor)
+
+									(setq gResult "You are now a gladiator")
+									)
+									
+							(eq theWish 'arenaKidnap)
+								(block ()
+									(typSetGlobalData &stBattleArena; "arenaRank" 'challenger)
+
+									(typSetGlobalData &stBattleArena; "arenaRep" 500)
+									(typSetGlobalData &stBattleArena; "arenaSkill" 500)
+
+									(typSetGlobalData &stBattleArena; "katamiStatus" 'instructor)
+
+									(setq gResult "You are now testing the Katami rescue mission.")
+									)
+									
+							(= theWish 'benedict)
+								(switch
+									(= theParam 'infiltrate)
+										(block (theMission destSys)
+											(setq theMission (msnCreate &msFindHandOfSolace; nil))
+											(msnAccept theMission)
+											(msnSuccess theMission)
+											(msnSetProperty theMission 'isDebriefed True)
+											
+											(setq destSys (if (find (sysGetNodes) 'C6A) 'C6A 'C6))
+											
+											(objGateTo gSource destSys (@ (sysGetStargates destSys) 0) &efStargateOut;)
+											(setq gResult "Ready for Penitent infiltrate mission.")
+											)
+											
+									(= theParam 'sandoval)
+										(block (theMission)
+											(setq theMission (msnCreate &msBenedictAndFiona; nil))
+											(msnAccept theMission)
+											(msnSuccess theMission)
+											(msnSetProperty theMission 'isDebriefed True)
+											
+											(setq theMission (msnCreate &msFionaInStKats; nil))
+											(msnAccept theMission)
+											
+											(objGateTo gSource "C5" (@ (sysGetStargates "C5") 0) &efStargateOut;)
+											(setq gResult "Ready for Sandoval scanning mission.")
+											)
+											
+									(= theParam 'rescue)
+										(block (theMission)
+											(setq theMission (msnCreate &msFindHandOfSolace; nil))
+											(msnAccept theMission)
+											(msnSuccess theMission)
+											(msnSetProperty theMission 'isDebriefed True)
+											
+											(objGateTo gSource "CD" (@ (sysGetStargates "CD") 0) &efStargateOut;)
+											(setq gResult "Ready for Benedict rescue mission.")
+											)
+											
+									(setq gResult (cat
+										"Missions:\n\n"
+										
+										"sandoval: Help Sandoval find the Hand of Solace.\n"
+										"infiltrate: Infiltrate a Penitent station.\n"
+										"rescue: Rescue Benedict mission.\n"
+										))
+									)
+									
+							(eq theWish 'blackMarket3)
+								(block ()
+									(if (not (objGetItems gPlayerShip "*+BlackMarketID"))
+										(objAddItem gPlayerShip (itmCreate &itBlackMarketID; 1))
+										)
+									(objSetData gPlayerShip 'blackMarketXP 600)
+									(objSetData gPlayerShip 'blackMarketLevel 3)
+									
+									(setq gResult "You are now at Black Market level 3.")
+									)
+									
+							(eq theWish 'blackMarket4)
+								(block ()
+									(if (not (objGetItems gPlayerShip "*+BlackMarketID"))
+										(objAddItem gPlayerShip (itmCreate &itBlackMarketID; 1))
+										)
+									(objSetData gPlayerShip 'blackMarketXP 1500)
+									(objSetData gPlayerShip 'blackMarketLevel 4)
+									
+									(setq gResult "You are now at Black Market level 4.")
+									)
+									
+							(eq theWish 'dominaLevel)
+								(block (theLevel oldLevel)
+									(if theParam
+										(setq theLevel theParam)
+										(setq theLevel 6)
+										)
+									
+									(setq oldLevel (domInitRelationship))
+									(typSetGlobalData &stDomina; "level" theLevel)
+									(typSetGlobalData &stDomina; "gainLevel" oldLevel)
+									(typSetGlobalData &stDomina; "xp" (item '(0 0 250 500 1000 2000 4000 8000) theLevel))
+									
+									(for i 1 theLevel
+										(typSetGlobalData &stDomina; (cat "lastInvokeTime" i)
+											(subtract (unvGetTick) (domGetTimeRequired i))
+											)
+										)
+										
+									(setq gResult (cat "You are now at Domina level " theLevel))
+									)
+
+							(= theWish 'fleet)
+								(switch
+									(= theParam 'antarctica)
+										(block ()
+											(setq gResult Nil)
+											
+											; Make sure Point Juno mission is completed
+
+											(switch
+												(msnFind "r +unid:&msCSCLamplighterPrototype;; +property:isSuccess;")
+													Nil
+
+												(!= (sysGetNode) 'PJ)
+													(setq gResult "Must be in Point Juno.")
+
+												(block ()
+													(setq theMission (msnCreate &msCSCLamplighterPrototype; nil))
+													(msnAccept theMission)
+													(msnSuccess theMission)
+													(msnSetProperty theMission 'isDebriefed True)
+													)
+												)
+
+											;	Fleet Commander
+
+											(if (not gResult)
+												(block (
+													(terraSys (@ (@ (unvFindObject "s +cscTerra") 0) 2))
+													)
+													(objSetData gPlayerShip "fleetXP" 3000)
+													(objSetData gPlayerShip "fleetLevel" 5)
+													(objSetData gPlayerShip "fleetTFSuccess" 1)
+													(objSetData gPlayerShip "fleetTFFailure" 0)
+
+													(objGateTo gSource terraSys (@ (sysGetStargates terraSys) 0) &efStargateOut;)
+													(setq gResult "Ready for CSC Terra mission.")
+													)
+												)
+											)
+
+									(block ()
+										(setq gResult (cat
+											"Missions:\n\n"
+										
+											"antarctica: Mission to destroy CSC Antarctica.\n"
+											"'" theParam "'"
+											))
+										(setq paneToShow "Help")
+										)
+									)
+
+							(eq theWish 'fleetRank3)
+								(block Nil
+									(objSetData gPlayerShip "fleetXP" 600)
+									(objSetData gPlayerShip "fleetLevel" 3)
+									(objSetData gPlayerShip "fleetTFSuccess" 1)
+									(objSetData gPlayerShip "fleetTFFailure" 0)
+
+									; Scientist rescue mission done
+									(typSetGlobalData &scCSCTerra; "p262scientists" "rescued")
+									
+									(setq gResult "You are now a Master Sargeant")
+									)
+									
+							(eq theWish 'fleetRank4)
+								(block Nil
+									(objSetData gPlayerShip "fleetXP" 1500)
+									(objSetData gPlayerShip "fleetLevel" 4)
+									(objSetData gPlayerShip "fleetTFSuccess" 1)
+									(objSetData gPlayerShip "fleetTFFailure" 0)
+
+									; Scientist rescue mission done
+									(typSetGlobalData &scCSCTerra; "p262scientists" "rescued")
+									
+									(setq gResult "You are now a Fleet Lieutenant")
+									)
+									
+							(eq theWish 'fleetRank)
+								(block Nil
+									(objSetData gPlayerShip "fleetXP" 3000)
+									(objSetData gPlayerShip "fleetLevel" 5)
+									(objSetData gPlayerShip "fleetTFSuccess" 1)
+									(objSetData gPlayerShip "fleetTFFailure" 0)
+
+									(setq gResult "You are now a Fleet Commander")
+									)
+
+							(eq theWish 'galaxyMap)
+								(block Nil
+									(enum (sysGetNodes) theNode (sysSetKnown theNode))
+									;	Include virtual so we can include SK Arcology
+									(unvSetObjectKnown "stV")
+									(objChangeEquipmentStatus gPlayerShip 'GalacticMap 'install)
+									(setq gResult "All nodes in the galaxy mapped")
+									)
+
+							(eq theWish 'goto)
+								(if (find (sysGetNodes) theParam)
+									(block Nil
+										(objGateTo gSource theParam (@ (sysGetStargates theParam) 0) &efStargateOut;)
+										(setq gResult (cat "You are now in " (sysGetName theParam)))
+										)
+									(block Nil
+										(setq gResult (cat "Unknown system: " theParam))
+										(setq paneToShow "Error")
+										)
+									)
+
+							(eq theWish 'huariDrug)
+								(block Nil
+									(typSetGlobalData &svHuariEmpire; "status" 'tualiIntro)
+									(sovSetDisposition &svHuariEmpire; &svPlayer; 'friend)
+									(sovSetDisposition &svPlayer; &svHuariEmpire; 'friend)
+									(setq gResult "Go to a Huari Fortress.")
+									)
+
+							(eq theWish 'huariFriend)
+								(block Nil
+									(typSetGlobalData &svHuariEmpire; "status" 'friend)
+									(sovSetDisposition &svHuariEmpire; &svPlayer; 'friend)
+									(sovSetDisposition &svPlayer; &svHuariEmpire; 'friend)
+									(setq gResult "You are now friends with the Huari.")
+									)
+
+							(eq theWish 'huariTemple)
+								(block Nil
+									(typSetGlobalData &svHuariEmpire; "status" 'tuali)
+									(sovSetDisposition &svHuariEmpire; &svPlayer; 'friend)
+									(sovSetDisposition &svPlayer; &svHuariEmpire; 'friend)
+									(setq gResult "Go to Huaramarca.")
+									)
+
+							(eq theWish 'insurance)
+								(block Nil
+									(typSetGlobalData &stInsuranceCompany; "insured" True)
+									(setq gResult "You are now insured")
+									)
+
+							(eq theWish 'item)
+								(block (itemFound)
+									(setq itemFound (unvUNID theParam))
+									(if (not (eq (item itemFound 1) 'itemtype))
+										; Error if we don't recognize the item
+										(block Nil
+											(setq gResult (cat "Unknown item: " theParam))
+											(setq paneToShow "Error")
+											)
+
+										; confirm item
+										(block Nil
+											(setq gResult (item itemFound 0))
+											(setq paneToShow "ItemWish")
+											)
+										)
+									)
+									
+							(eq theWish 'map)
+								(block Nil
+									(enum (sysFindObject Nil "sT") theObj
+										(objSetKnown theObj)
+										)
+									(setq gResult "System mapped")
+									)
+									
+							(eq theWish 'randomencounter)
+								(block Nil
+									(sysCreateEncounter (int theParam))
+									(setq gResult "Encounter created")
+									)
+									
+							(eq theWish 'shipwreck)
+								(block (theWreck)
+									(setq theWreck (sysCreateShipwreck &scEI100; (objGetPos gPlayerShip) &svCommonwealth;))
+									(objAddItem theWreck (itmCreate &itGoldOre; 5))
+									(setq gResult "Shipwreck created")
+									)
+									
+							(eq theWish 'testArenaMission)
+								(block (
+									(arenaObj (sysFindObject gPlayerShip "TN +battleArena;"))
+									)
+									
+									(objSetGlobalData arenaObj 'arenaRep 1100)
+									(objSetGlobalData arenaObj 'arenaSkill 1100)
+									(objSetGlobalData arenaObj 'arenaRank 'challenger)
+									(objSetGlobalData arenaObj 'katamiStatus 'ransomNote)
+									)
+									
+							(eq theWish 'testArenaPath)
+								
+								(block (
+									(arenaObj (sysFindObject gPlayerShip "TN +battleArena;"))
+									(targetObj (sysFindObject gPlayerShip "TN +katamiRescue"))
+									
+									cruiserObj
+									theAnchorObj
+									)
+									
+									(setq theAnchorObj (sysCreateMarker "Morgental cruiser anchor" (sysVectorPolarOffset arenaObj 270 20) &svCorporate;))
+									
+									(for i 1 100
+										(block Nil
+											(setq cruiserObj (sysCreateShip 
+												&scKateMorgentalCruiserArena; 
+												(objGetPos theAnchorObj)
+												&svCorporate;
+												))
+									
+											(shpOrder cruiserObj 'wait i)
+											(shpOrder cruiserObj 'approach targetObj 180)
+											(shpOrder cruiserObj 'orbit targetObj 180)
+											)
+										)
+									
+									(setq gResult "Kate Morgental created")
+									)
+									
+							(eq theWish 'upgrade)
+								(switch
+									(eq theParam "3")
+										(block Nil
+											(objAddItem gPlayerShip (itmCreate &it25MWReactor; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &it25MWReactor; 1))
+											(shpRefuelFromItem gPlayerShip (itmCreate &itHeliumAssembly; 50))
+									
+											(objAddItem gPlayerShip (itmCreate &itSmartCannon; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itSmartCannon; 1))
+											(objAddItem gPlayerShip (itmCreate &itSmartCannonShell; 100))
+									
+											(objAddItem gPlayerShip (itmCreate &itNAMIMissileLauncher; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itNAMIMissileLauncher; 1))
+											(objAddItem gPlayerShip (itmCreate &itKM500Missile; 50))
+									
+											(objAddItem gPlayerShip (itmCreate &itMonopoleDeflector; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itMonopoleDeflector; 1))
+									
+											(for i 0 (subtract (shpGetArmorCount gPlayerShip) 1)
+												(block Nil
+													(objAddItem gPlayerShip (itmCreate &itHeavyCeramicPlate; 1))
+													(shpInstallArmor gPlayerShip (itmCreate &itHeavyCeramicPlate; 1) i)
+													)
+												)
+												
+											(setq gResult "Upgraded to level 3")
+											)
+											
+									(eq theParam "4")
+										(block Nil
+											(objAddItem gPlayerShip (itmCreate &it50MWReactor; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &it50MWReactor; 1))
+											(shpRefuelFromItem gPlayerShip (itmCreate &itXenotiteFuelRod; 50))
+									
+											(objAddItem gPlayerShip (itmCreate &itMorningStarCannon; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itMorningStarCannon; 1))
+									
+											(objAddItem gPlayerShip (itmCreate &itNAMIMissileLauncher; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itNAMIMissileLauncher; 1))
+											(objAddItem gPlayerShip (itmCreate &itKM550Missile; 50))
+									
+											(objAddItem gPlayerShip (itmCreate &itClass3Deflector; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itClass3Deflector; 1))
+									
+											(for i 0 (subtract (shpGetArmorCount gPlayerShip) 1)
+												(block Nil
+													(objAddItem gPlayerShip (itmCreate &itAdvancedReactiveArmor; 1))
+													(shpInstallArmor gPlayerShip (itmCreate &itAdvancedReactiveArmor; 1) i)
+													)
+												)
+												
+											(setq gResult "Upgraded to level 4")
+											)
+											
+									(eq theParam "5")
+										(block Nil
+											(objAddItem gPlayerShip (itmCreate &it100MWReactor; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &it100MWReactor; 1))
+											(shpRefuelFromItem gPlayerShip (itmCreate &itXenotiteFuelRod; 100))
+									
+											(objAddItem gPlayerShip (itmCreate &itNeutronBlaster; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itNeutronBlaster; 1))
+									
+											(objAddItem gPlayerShip (itmCreate &itMakayevLauncher; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itMakayevLauncher; 1))
+											(objAddItem gPlayerShip (itmCreate &itStrelkaGreen; 100))
+									
+											(objAddItem gPlayerShip (itmCreate &itClass5Deflector; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itClass5Deflector; 1))
+									
+											(for i 0 (subtract (shpGetArmorCount gPlayerShip) 1)
+												(block Nil
+													(objAddItem gPlayerShip (itmCreate &itLightBlastPlate; 1))
+													(shpInstallArmor gPlayerShip (itmCreate &itLightBlastPlate; 1) i)
+													)
+												)
+												
+											(setq gResult "Upgraded to level 5")
+											)
+											
+									(eq theParam "6")
+										(block Nil
+											(objAddItem gPlayerShip (itmCreate &it150MWReactor; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &it150MWReactor; 1))
+											(shpRefuelFromItem gPlayerShip (itmCreate &itXenotiteFuelRod; 100))
+									
+											(objAddItem gPlayerShip (itmCreate &itTeV9Blaster; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itTeV9Blaster; 1))
+									
+											(objAddItem gPlayerShip (itmCreate &itDragonflyMissileSystem; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itDragonflyMissileSystem; 1))
+											(objAddItem gPlayerShip (itmCreate &itDragonflyCartridge; 50))
+									
+											(objAddItem gPlayerShip (itmCreate &itYoroiS500; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itYoroiS500; 1))
+									
+											(for i 0 (subtract (shpGetArmorCount gPlayerShip) 1)
+												(block Nil
+													(objAddItem gPlayerShip (itmCreate &itBlastPlate; 1))
+													(shpInstallArmor gPlayerShip (itmCreate &itBlastPlate; 1) i)
+													)
+												)
+												
+											(setq gResult "Upgraded to level 6")
+											)
+											
+									(eq theParam "7")
+										(block Nil
+											(objAddItem gPlayerShip (itmCreate &it250MWReactor; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &it250MWReactor; 1))
+											(shpRefuelFromItem gPlayerShip (itmCreate &itPteracniumFuelRod; 100))
+									
+											(objAddItem gPlayerShip (itmCreate &itXenophobeLancer; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itXenophobeLancer; 1))
+									
+											(objAddItem gPlayerShip (itmCreate &itMAGLauncher; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itMAGLauncher; 1))
+											(objAddItem gPlayerShip (itmCreate &itZG24ClusterMAG; 25))
+											(objAddItem gPlayerShip (itmCreate &it800HexageneMAG; 25))
+											(objAddItem gPlayerShip (itmCreate &it3KSiegeMAG; 25))
+									
+											(objAddItem gPlayerShip (itmCreate &itMammoth50Deflector; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itMammoth50Deflector; 1))
+									
+											(for i 0 (subtract (shpGetArmorCount gPlayerShip) 1)
+												(block Nil
+													(objAddItem gPlayerShip (itmCreate &itAdvancedCeralloyArmor; 1))
+													(shpInstallArmor gPlayerShip (itmCreate &itAdvancedCeralloyArmor; 1) i)
+													)
+												)
+												
+											(setq gResult "Upgraded to level 7")
+											)
+											
+									(eq theParam "8")
+										(block Nil
+											(objAddItem gPlayerShip (itmCreate &it500MWReactor; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &it500MWReactor; 1))
+											(shpRefuelFromItem gPlayerShip (itmCreate &itPteracniumFuelRod; 50))
+									
+											(objAddItem gPlayerShip (itmCreate &itFusionfireHowitzer; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itFusionfireHowitzer; 1))
+									
+											(objAddItem gPlayerShip (itmCreate &itRasiermesserLauncher; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itRasiermesserLauncher; 1))
+											(objAddItem gPlayerShip (itmCreate &itGotha10Missile; 50))
+											
+											(objAddItem gPlayerShip (itmCreate &itPlasmaShieldGenerator; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itPlasmaShieldGenerator; 1))
+									
+											(for i 0 (subtract (shpGetArmorCount gPlayerShip) 1)
+												(block Nil
+													(objAddItem gPlayerShip (itmCreate &itOrthoSteel; 1))
+													(shpInstallArmor gPlayerShip (itmCreate &itOrthoSteel; 1) i)
+													)
+												)
+												
+											(setq gResult "Upgraded to level 8")
+											)
+											
+									(eq theParam "9")
+										(block Nil
+											(objAddItem gPlayerShip (itmCreate &it1GWReactor; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &it1GWReactor; 1))
+											(shpRefuelFromItem gPlayerShip (itmCreate &itHadronVacuumFuelCell; 50))
+									
+											(objAddItem gPlayerShip (itmCreate &itDvalinIon9Cannon; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itDvalinIon9Cannon; 1))
+									
+											(objAddItem gPlayerShip (itmCreate &itNAMIHeavyLauncher; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itNAMIHeavyLauncher; 1))
+											(objAddItem gPlayerShip (itmCreate &itS3Missile; 50))
+											(objAddItem gPlayerShip (itmCreate &itM2Missile; 50))
+											
+											(objAddItem gPlayerShip (itmCreate &itIocrymVeil; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itIocrymVeil; 1))
+									
+											(for i 0 (subtract (shpGetArmorCount gPlayerShip) 1)
+												(block Nil
+													(objAddItem gPlayerShip (itmCreate &itOrthoSteel; 1))
+													(shpInstallArmor gPlayerShip (itmCreate &itOrthoSteel; 1) i)
+													)
+												)
+												
+											(setq gResult "Upgraded to level 9")
+											)
+											
+									(eq theParam "10")
+										(block Nil
+											(objAddItem gPlayerShip (itmCreate &it1GWReactor; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &it1GWReactor; 1))
+											(shpRefuelFromItem gPlayerShip (itmCreate &itHadronVacuumFuelCell; 100))
+									
+											(objAddItem gPlayerShip (itmCreate &itLamplighter; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itLamplighter; 1))
+									
+											(objAddItem gPlayerShip (itmCreate &itIM90Blaster; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itIM90Blaster; 1))
+											
+											(objAddItem gPlayerShip (itmCreate &itTaikon200Deflector; 1))
+											(shpInstallDevice gPlayerShip (itmCreate &itTaikon200Deflector; 1))
+									
+											(for i 0 (subtract (shpGetArmorCount gPlayerShip) 1)
+												(block Nil
+													(objAddItem gPlayerShip (itmCreate &itOctocarbideArmor; 1))
+													(shpInstallArmor gPlayerShip (itmCreate &itOctocarbideArmor; 1) i)
+													)
+												)
+												
+											(setq gResult "Upgraded to level 10")
+											)
+											
+									(setq gResult (cat "Unknown upgrade level: " theParam))
+									)
+									
+							(eq theWish 'wingman)
+								(block (theShip)
+									(setq gResult Nil)
+									
+									(switch
+										(eq theParam 'jenna)
+											(block Nil
+												(setq theShip (sysCreateShip &scRoninJenna; gPlayerShip &svCommonwealth;))
+												(objFireEvent theShip "OrderJoinPlayer")
+												)
+
+										(eq theParam 'rama)
+											(block Nil
+												(setq theShip (sysCreateShip &scCenturionRama; gPlayerShip &svCommonwealth;))
+												(objFireEvent theShip "OrderJoinPlayer")
+												)
+
+										(eq theParam 'volkov)
+											(block Nil
+												(setq theShip (sysCreateShip &scWolfenVolkov; gPlayerShip &svCommonwealth;))
+												(objFireEvent theShip "OrderJoinPlayer")
+												)
+												
+										(eq theParam 'squadron)
+											(block Nil
+												(for i 0 5
+													(block (ship)
+														(setq ship (sysCreateShip &scCenturion; gPlayerShip &svCommonwealth; "fleet"))
+														(shpOrderEscort ship gPlayerShip i)
+														)
+													)
+
+												(setq gResult "Created squadron")
+												)
+
+										(block (theClass)
+											(setq theClass &scCenturion;)
+
+											(setq theShip (sysCreateShip theClass gPlayerShip &svCommonwealth; "fleet"))
+											(shpOrderEscort theShip gPlayerShip (random 1 10))
+											)
+										)
+
+									(if (not gResult)
+										(setq gResult (cat "Created " (objGetName theShip 0x04)))
+										)
+									)
+
+							(setq paneToShow "Help")
+							)
+
+						(scrShowPane gScreen paneToShow)							
+						)
+					</Action>
+
+					<Action name="Cancel" cancel="1" key="C">
+						<Exit/>
+					</Action>
+				</Actions>
+			</Default>
+
+			<Granted>
+				<OnPaneInit>
+					(scrSetDesc gScreen gResult)
+				</OnPaneInit>
+
+				<Actions>
+					<Action name="Done" default="1" cancel="1" key="D">
+						<Exit/>
+					</Action>
+				</Actions>
+			</Granted>
+
+			<ItemWish>
+				<OnPaneInit>
+					(scrSetDesc gScreen (cat
+						"Do you wish to create " (itmGetName (itmCreate gResult 1) 0x0108) "?"
+						))
+				</OnPaneInit>
+
+				<Actions>
+					<Action name="Yes" default="1" key="Y">
+						(block (theItem)
+							(setq theItem (itmCreate gResult 1))
+
+							;(itmSetKnown theItem)
+							(itmSetReference theItem)
+							(objAddItem gPlayerShip theItem)
+
+							(scrExitDock gScreen)
+							)
+					</Action>
+
+					<Action name="No" cancel="1" key="N">
+						(scrShowPane gScreen "Default")
+					</Action>
+				</Actions>
+			</ItemWish>
+
+			<Help>
+				<OnPaneInit>
+					(scrSetDesc gScreen (cat
+						"fight {shipClass}\n"
+						"galaxyMap\n"
+						"goto {nodeID}\n"
+						"item {itemName}\n"
+						"map\n"
+						"randomEncounter {unid}\n"
+						"upgrade {level}\n"
+						"wingman {name}\n"
+						))
+				</OnPaneInit>
+
+				<Actions>
+					<Action name="Continue" default="1" cancel="1" key="C">
+						(scrShowPane gScreen "Default")
+					</Action>
+				</Actions>
+			</Help>
+
+			<Error>
+				<OnPaneInit>
+					(scrSetDesc gScreen gResult)
+				</OnPaneInit>
+
+				<Actions>
+					<Action name="Continue" default="1" cancel="1" key="C">
+						(scrShowPane gScreen "Default")
+					</Action>
+				</Actions>
+			</Error>
+		</Panes>
+	</DockScreen>
+	
+</TranscendenceModule>
