@@ -1,0 +1,15 @@
+DEBUG PART I
+Copyright (c) 2019 Kronosaur Productions, LLC.
+
+https://multiverse.kronosaur.com/transEntry.hexm?unid=Transcendence%3aa0140000
+https://transcendence.kronosaur.com
+transcendence@kronosaur.com
+@Transcendence
+
+This is the source code to Debug Part I, a god mod extension used by the
+Transcendence development team to debug the game.
+
+INSTALLATION
+
+Copy these files to a folder under the Extensions folder in a Transcendence
+installation. Run in Debug mode (/debug).
