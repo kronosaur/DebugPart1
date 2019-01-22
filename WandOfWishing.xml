@@ -380,6 +380,12 @@
 										)
 									(setq gResult "System mapped")
 									)
+
+							(= theWish 'militiaRank)
+								(block ()
+									(typSetData &unidCommonwealthMilitia; 'rank 1)
+									(setq gResult "You are now a lieutenant in the Commonwealth Militia.")
+									)
 									
 							(eq theWish 'randomencounter)
 								(block Nil
