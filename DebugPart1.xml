@@ -15,13 +15,15 @@
 	<!ENTITY unidWandOfWishing			"0xA0140001">
 	<!ENTITY unidWoWScreen				"0xA0140002">
 	<!ENTITY unidCoverImage				"0xA0140003">
+
+	<!ENTITY efOrbEffectExplorer		"0xA0140010">
 	]>
 
 <TranscendenceExtension UNID="&unidExtension;" 
 		name=			"Debug Part I"
 		release=		"1"
-		version=		"1.0.1"
-		apiVersion=		"43"
+		version=		"1.0.2"
+		apiVersion=		"45"
 		extends=		"0x00100000"
 		debugOnly=		"true"
 		coverImageID=	"&unidCoverImage;"
@@ -33,5 +35,24 @@
 	<Module filename="WandOfWishing.xml"/>
 
 	<Image UNID="&unidCoverImage;"	bitmap="Resources\DebugPart1Cover.jpg" loadOnUse="true" />
+
+	<EffectType unid="&efOrbEffectExplorer;"
+			loop="true"
+			>
+		<Effect>
+			<Orb	style=			"fireblast"
+					animate=		"explode"
+					intensity=		"100"
+					radius=			"120"
+					lifetime=		"30"
+					distortion=		"60"
+					detail=			"40"
+					
+					blendMode=		"normal"
+					primaryColor=	"#ffd200"
+					secondaryColor=	"#ff2a00"
+					/>
+		</Effect>
+	</EffectType>
 	
 </TranscendenceExtension>

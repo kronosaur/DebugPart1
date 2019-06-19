@@ -327,7 +327,8 @@
 
 							(eq theWish 'huariDrug)
 								(block Nil
-									(typSetGlobalData &svHuariEmpire; "status" 'tualiIntro)
+									(typSetData &svHuariEmpire; 'status 'tualiIntro)
+									(typSetData &svHuariEmpire; 'xp 1000)
 									(sovSetDisposition &svHuariEmpire; &svPlayer; 'friend)
 									(sovSetDisposition &svPlayer; &svHuariEmpire; 'friend)
 									(setq gResult "Go to a Huari Fortress.")
@@ -343,7 +344,8 @@
 
 							(eq theWish 'huariTemple)
 								(block Nil
-									(typSetGlobalData &svHuariEmpire; "status" 'tuali)
+									(typSetData &svHuariEmpire; "status" 'tuali)
+									(typSetData &svHuariEmpire; 'xp 1000)
 									(sovSetDisposition &svHuariEmpire; &svPlayer; 'friend)
 									(sovSetDisposition &svPlayer; &svHuariEmpire; 'friend)
 									(setq gResult "Go to Huaramarca.")
