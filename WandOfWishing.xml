@@ -85,6 +85,15 @@
 						(switch
 							(= theWish 'all)
 								(switch
+									(= theParam 'armor)
+										(block Nil
+											(itmEnumTypes "a -unknown;" theItem
+												(objAddItem gPlayerShip theItem)
+												)
+												
+											(setq gResult "Created all armors")
+											)
+											
 									(= theParam 'items)
 										(block Nil
 											(itmEnumTypes "* -unknown;" theItem
@@ -126,52 +135,70 @@
 									)
 									
 							(= theWish 'benedict)
-								(switch
-									(= theParam 'infiltrate)
-										(block (theMission destSys)
-											(setq theMission (msnCreate &msFindHandOfSolace; nil))
-											(msnAccept theMission)
-											(msnSuccess theMission)
-											(msnSetProperty theMission 'isDebriefed True)
-											
-											(setq destSys (if (find (sysGetNodes) 'C6A) 'C6A 'C6))
-											
-											(objGateTo gSource destSys (@ (sysGetStargates destSys) 0) &efStargateOut;)
-											(setq gResult "Ready for Penitent infiltrate mission.")
-											)
-											
-									(= theParam 'sandoval)
-										(block (theMission)
+								(block (theMission)
+
+									;	Benedict and Fiona
+
+									(if (not (msnFind "r +unid:&msBenedictAndFiona;; +property:isSuccess;"))
+										(block ()
 											(setq theMission (msnCreate &msBenedictAndFiona; nil))
+											(if (not theMission)
+												(error "Must be in starting system")
+												)
 											(msnAccept theMission)
 											(msnSuccess theMission)
 											(msnSetProperty theMission 'isDebriefed True)
-											
+											)
+										)
+
+									;	Fiona in St. Kats + Find Hand of Solace
+					
+									(if (and (find '(infiltrate rescue) theParam)
+											(not (msnFind "r +unid:&msFindHandOfSolace;; +property:isSuccess;"))
+											)
+										(block ()
 											(setq theMission (msnCreate &msFionaInStKats; nil))
 											(msnAccept theMission)
-											
-											(objGateTo gSource "C5" (@ (sysGetStargates "C5") 0) &efStargateOut;)
-											(setq gResult "Ready for Sandoval scanning mission.")
-											)
-											
-									(= theParam 'rescue)
-										(block (theMission)
+
 											(setq theMission (msnCreate &msFindHandOfSolace; nil))
 											(msnAccept theMission)
 											(msnSuccess theMission)
 											(msnSetProperty theMission 'isDebriefed True)
-											
-											(objGateTo gSource "CD" (@ (sysGetStargates "CD") 0) &efStargateOut;)
-											(setq gResult "Ready for Benedict rescue mission.")
 											)
+										)
+
+									(switch
+										(= theParam 'sandoval)
+											(block (theMission)
+												(setq theMission (msnCreate &msFionaInStKats; nil))
+												(msnAccept theMission)
+
+												(objGateTo gSource "C5" (@ (sysGetStargates "C5") 0) &efStargateOut;)
+												(setq gResult "Ready for Sandoval scanning mission.")
+												)
 											
-									(setq gResult (cat
-										"Missions:\n\n"
+										(= theParam 'infiltrate)
+											(block (theMission destSys)
+												(setq destSys (if (find (sysGetNodes) 'C6A) 'C6A 'C6))
+											
+												(objGateTo gSource destSys (@ (sysGetStargates destSys) 0) &efStargateOut;)
+												(setq gResult "Ready for Penitent infiltrate mission.")
+												)
+											
+										(= theParam 'rescue)
+											(block (theMission)
+												(objGateTo gSource "CD" (@ (sysGetStargates "CD") 0) &efStargateOut;)
+												(setq gResult "Ready for Benedict rescue mission.")
+												)
+											
+										(setq gResult (cat
+											"Missions:\n\n"
 										
-										"sandoval: Help Sandoval find the Hand of Solace.\n"
-										"infiltrate: Infiltrate a Penitent station.\n"
-										"rescue: Rescue Benedict mission.\n"
-										))
+											"sandoval: Help Sandoval find the Hand of Solace.\n"
+											"infiltrate: Infiltrate a Penitent station.\n"
+											"rescue: Rescue Benedict mission.\n"
+											))
+										)
 									)
 									
 							(eq theWish 'blackMarket3)
