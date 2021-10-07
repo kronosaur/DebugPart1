@@ -17,6 +17,11 @@
 	<!ENTITY unidCoverImage				"0xA0140003">
 
 	<!ENTITY efOrbEffectExplorer		"0xA0140010">
+
+	<!-- Imported from CC -->
+
+	<!ENTITY chEllenQuinn					"0x00810400">
+	<!ENTITY scEllenQuinnMolotok			"0x00810401">
 	]>
 
 <TranscendenceExtension UNID="&unidExtension;" 

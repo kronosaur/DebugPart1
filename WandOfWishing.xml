@@ -685,7 +685,7 @@
 									(setq gResult (cat "Unknown upgrade level: " theParam))
 									)
 									
-							(eq theWish 'wingman)
+							(or (= theWish 'wingman) (= theWish 'wingmate))
 								(block (theShip)
 									(setq gResult Nil)
 									
@@ -693,6 +693,17 @@
 										(eq theParam 'jenna)
 											(block Nil
 												(setq theShip (sysCreateShip &scRoninJenna; gPlayerShip &svCommonwealth;))
+												(objFireEvent theShip "OrderJoinPlayer")
+												)
+
+										(= theParam 'quinn)
+											(block ()
+												(setq theShip (rpgCharacterCreateShip
+													&chEllenQuinn;
+													&scEllenQuinnMolotok;
+													gPlayerShip
+													{ repairAll:True }
+													))
 												(objFireEvent theShip "OrderJoinPlayer")
 												)
 
